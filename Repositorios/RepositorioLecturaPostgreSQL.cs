@@ -1,6 +1,6 @@
 // --------------------------------------------------------------
 // Archivo: RepositorioLecturaPostgreSQL.cs (VERSIÓN CON SOPORTE TIMESTAMP)
-// Ruta: API_aplicaciones_servicios_web/Repositorios/RepositorioLecturaPostgreSQL.cs
+// Ruta: ApiGenericaCsharp/Repositorios/RepositorioLecturaPostgreSQL.cs
 // Propósito: Implementar IRepositorioLecturaTabla para PostgreSQL con detección de tipos
 // --------------------------------------------------------------
 
@@ -11,11 +11,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Npgsql;
 using NpgsqlTypes;
-using API_aplicaciones_servicios_web.Repositorios.Abstracciones;
-using API_aplicaciones_servicios_web.Servicios.Abstracciones;
-using API_aplicaciones_servicios_web.Servicios.Utilidades;
+using ApiGenericaCsharp.Repositorios.Abstracciones;
+using ApiGenericaCsharp.Servicios.Abstracciones;
+using ApiGenericaCsharp.Servicios.Utilidades;
 
-namespace API_aplicaciones_servicios_web.Repositorios
+namespace ApiGenericaCsharp.Repositorios
 {
     /// <summary>
     /// Implementación específica para PostgreSQL que resuelve problemas de incompatibilidad de tipos.

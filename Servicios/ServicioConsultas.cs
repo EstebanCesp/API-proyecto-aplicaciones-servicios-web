@@ -24,10 +24,10 @@ using System.Data;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
-using API_aplicaciones_servicios_web.Servicios.Abstracciones;
-using API_aplicaciones_servicios_web.Repositorios.Abstracciones;
+using ApiGenericaCsharp.Servicios.Abstracciones;
+using ApiGenericaCsharp.Repositorios.Abstracciones;
 
-namespace API_aplicaciones_servicios_web.Servicios
+namespace ApiGenericaCsharp.Servicios
 {
     public sealed class ServicioConsultas : IServicioConsultas
     {

@@ -17,7 +17,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using API_aplicaciones_servicios_web.Modelos; // donde está ConfiguracionJwt
+using ApiGenericaCsharp.Modelos; // donde está ConfiguracionJwt
 
 // Crea el "builder": punto de inicio para configurar servicios y la aplicación.
 var builder = WebApplication.CreateBuilder(args);
@@ -124,22 +124,22 @@ builder.Services.AddSwaggerGen(opciones =>
 // REGISTRO DE POLÍTICA DE TABLAS PROHIBIDAS
 // -----------------------------------------------------------------
 builder.Services.AddSingleton<
-    API_aplicaciones_servicios_web.Servicios.Abstracciones.IPoliticaTablasProhibidas,
-    API_aplicaciones_servicios_web.Servicios.Politicas.PoliticaTablasProhibidasDesdeJson>();
+    ApiGenericaCsharp.Servicios.Abstracciones.IPoliticaTablasProhibidas,
+    ApiGenericaCsharp.Servicios.Politicas.PoliticaTablasProhibidasDesdeJson>();
 
 // -----------------------------------------------------------------
 // REGISTRO DE SERVICIO CRUD (DIP)
 // -----------------------------------------------------------------
 builder.Services.AddScoped<
-    API_aplicaciones_servicios_web.Servicios.Abstracciones.IServicioCrud,
-    API_aplicaciones_servicios_web.Servicios.ServicioCrud>();
+    ApiGenericaCsharp.Servicios.Abstracciones.IServicioCrud,
+    ApiGenericaCsharp.Servicios.ServicioCrud>();
 
 // -----------------------------------------------------------------
 // REGISTRO DEL PROVEEDOR DE CONEXIÓN (DIP)
 // -----------------------------------------------------------------
 builder.Services.AddSingleton<
-    API_aplicaciones_servicios_web.Servicios.Abstracciones.IProveedorConexion,
-    API_aplicaciones_servicios_web.Servicios.Conexion.ProveedorConexion>();
+    ApiGenericaCsharp.Servicios.Abstracciones.IProveedorConexion,
+    ApiGenericaCsharp.Servicios.Conexion.ProveedorConexion>();
 
 // Lee el proveedor de BD desde la configuración
 var proveedorBD = builder.Configuration.GetValue<string>("DatabaseProvider") ?? "SqlServer";
@@ -147,8 +147,8 @@ var proveedorBD = builder.Configuration.GetValue<string>("DatabaseProvider") ?? 
 // -----------------------------------------------------------------
 // REGISTRO DE SERVICIO CONSULTAS (DIP)
 // -----------------------------------------------------------------
-builder.Services.AddScoped<API_aplicaciones_servicios_web.Servicios.Abstracciones.IServicioConsultas,
-    API_aplicaciones_servicios_web.Servicios.ServicioConsultas>();
+builder.Services.AddScoped<ApiGenericaCsharp.Servicios.Abstracciones.IServicioConsultas,
+    ApiGenericaCsharp.Servicios.ServicioConsultas>();
 
 // -----------------------------------------------------------------
 // REGISTRO AUTOMÁTICO DEL REPOSITORIO SEGÚN DatabaseProvider
@@ -157,12 +157,12 @@ switch (proveedorBD.ToLower())
 {
     case "postgres":
         // Repositorio de lectura para PostgreSQL
-        builder.Services.AddScoped<API_aplicaciones_servicios_web.Repositorios.Abstracciones.IRepositorioLecturaTabla,
-                                   API_aplicaciones_servicios_web.Repositorios.RepositorioLecturaPostgreSQL>();
+        builder.Services.AddScoped<ApiGenericaCsharp.Repositorios.Abstracciones.IRepositorioLecturaTabla,
+                                   ApiGenericaCsharp.Repositorios.RepositorioLecturaPostgreSQL>();
         // Repositorio de consultas para PostgreSQL
         builder.Services.AddScoped<
-            API_aplicaciones_servicios_web.Repositorios.Abstracciones.IRepositorioConsultas,
-            API_aplicaciones_servicios_web.Repositorios.RepositorioConsultasPostgreSQL
+            ApiGenericaCsharp.Repositorios.Abstracciones.IRepositorioConsultas,
+            ApiGenericaCsharp.Repositorios.RepositorioConsultasPostgreSQL
         >();
         break;
 
@@ -170,13 +170,13 @@ switch (proveedorBD.ToLower())
     case "mysql":
         // Repositorio de lectura para MySQL/MariaDB
         builder.Services.AddScoped<
-            API_aplicaciones_servicios_web.Repositorios.Abstracciones.IRepositorioLecturaTabla,
-            API_aplicaciones_servicios_web.Repositorios.RepositorioLecturaMysqlMariaDB>();
+            ApiGenericaCsharp.Repositorios.Abstracciones.IRepositorioLecturaTabla,
+            ApiGenericaCsharp.Repositorios.RepositorioLecturaMysqlMariaDB>();
 
         // Repositorio de consultas para MySQL/MariaDB
         builder.Services.AddScoped<
-            API_aplicaciones_servicios_web.Repositorios.Abstracciones.IRepositorioConsultas,
-            API_aplicaciones_servicios_web.Repositorios.RepositorioConsultasMysqlMariaDB>();
+            ApiGenericaCsharp.Repositorios.Abstracciones.IRepositorioConsultas,
+            ApiGenericaCsharp.Repositorios.RepositorioConsultasMysqlMariaDB>();
         break;
 
     case "sqlserver":
@@ -184,12 +184,12 @@ switch (proveedorBD.ToLower())
     case "localdb":
     default:
         // Repositorio de lectura para SQL Server (incluyendo LocalDb)
-        builder.Services.AddScoped<API_aplicaciones_servicios_web.Repositorios.Abstracciones.IRepositorioLecturaTabla,
-                                   API_aplicaciones_servicios_web.Repositorios.RepositorioLecturaSqlServer>();
+        builder.Services.AddScoped<ApiGenericaCsharp.Repositorios.Abstracciones.IRepositorioLecturaTabla,
+                                   ApiGenericaCsharp.Repositorios.RepositorioLecturaSqlServer>();
 
         // Repositorio de consultas para SQL Server
-        builder.Services.AddScoped<API_aplicaciones_servicios_web.Repositorios.Abstracciones.IRepositorioConsultas,
-                               API_aplicaciones_servicios_web.Repositorios.RepositorioConsultasSqlServer>();
+        builder.Services.AddScoped<ApiGenericaCsharp.Repositorios.Abstracciones.IRepositorioConsultas,
+                               ApiGenericaCsharp.Repositorios.RepositorioConsultasSqlServer>();
         break;
 }
 
@@ -242,7 +242,7 @@ if (app.Environment.IsDevelopment())
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "API_aplicaciones_servicios_web v1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ApiGenericaCsharp v1");
     c.RoutePrefix = "swagger";
 });
 

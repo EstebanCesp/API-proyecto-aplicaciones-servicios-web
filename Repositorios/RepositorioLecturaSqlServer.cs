@@ -1,6 +1,6 @@
 // --------------------------------------------------------------
 // Archivo: RepositorioLecturaSqlServer.cs (VERSIÓN MEJORADA CON DETECCIÓN DE TIPOS)
-// Ruta: API_aplicaciones_servicios_web/Repositorios/RepositorioLecturaSqlServer.cs
+// Ruta: ApiGenericaCsharp/Repositorios/RepositorioLecturaSqlServer.cs
 // Mejoras: Detección automática de tipos, conversión inteligente, manejo DATE vs DATETIME
 // --------------------------------------------------------------
 
@@ -10,11 +10,11 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using API_aplicaciones_servicios_web.Repositorios.Abstracciones;
-using API_aplicaciones_servicios_web.Servicios.Abstracciones;
-using API_aplicaciones_servicios_web.Servicios.Utilidades;
+using ApiGenericaCsharp.Repositorios.Abstracciones;
+using ApiGenericaCsharp.Servicios.Abstracciones;
+using ApiGenericaCsharp.Servicios.Utilidades;
 
-namespace API_aplicaciones_servicios_web.Repositorios
+namespace ApiGenericaCsharp.Repositorios
 {
     /// <summary>
     /// Implementación mejorada para SQL Server con detección automática de tipos.

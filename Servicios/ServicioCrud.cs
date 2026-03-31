@@ -10,10 +10,10 @@
 using System;                                             // Para ArgumentException y ArgumentNullException
 using System.Collections.Generic;                        // Para List<> y Dictionary<>
 using System.Threading.Tasks;                            // Para async/await
-using API_aplicaciones_servicios_web.Servicios.Abstracciones;             // Para IServicioCrud e IPoliticaTablasProhibidas
-using API_aplicaciones_servicios_web.Repositorios.Abstracciones;          // Para IRepositorioLecturaTabla
+using ApiGenericaCsharp.Servicios.Abstracciones;             // Para IServicioCrud e IPoliticaTablasProhibidas
+using ApiGenericaCsharp.Repositorios.Abstracciones;          // Para IRepositorioLecturaTabla
 
-namespace API_aplicaciones_servicios_web.Servicios
+namespace ApiGenericaCsharp.Servicios
 {
     /// <summary>
     /// Implementación concreta del servicio CRUD que aplica reglas de negocio.
@@ -592,7 +592,7 @@ namespace API_aplicaciones_servicios_web.Servicios
 
                 // FASE 5: VERIFICACIÓN DE CONTRASEÑA CON BCRYPT
                 // Usar nuestra clase de utilidad para verificación segura
-                bool contrasenaCorrecta = API_aplicaciones_servicios_web.Servicios.Utilidades.EncriptacionBCrypt.Verificar(
+                bool contrasenaCorrecta = ApiGenericaCsharp.Servicios.Utilidades.EncriptacionBCrypt.Verificar(
                     valorContrasena,  // Contraseña en texto plano proporcionada
                     hashAlmacenado    // Hash BCrypt almacenado en base de datos
                 );

@@ -20,10 +20,10 @@ using Microsoft.IdentityModel.Tokens;                // Para firmar y generar el
 using System.IdentityModel.Tokens.Jwt;               // Para manipular JWT
 using System.Security.Claims;                        // Para definir los claims dentro del token
 using System.Text;                                   // Para codificar la clave secreta
-using API_aplicaciones_servicios_web.Modelos;                          // Para la clase ConfiguracionJwt
-using API_aplicaciones_servicios_web.Servicios.Abstracciones;           // Para la interfaz IServicioCrud
+using ApiGenericaCsharp.Modelos;                          // Para la clase ConfiguracionJwt
+using ApiGenericaCsharp.Servicios.Abstracciones;           // Para la interfaz IServicioCrud
 
-namespace API_aplicaciones_servicios_web.Controllers
+namespace ApiGenericaCsharp.Controllers
 {
     /// <summary>
     /// Controlador que permite autenticar un usuario contra cualquier tabla

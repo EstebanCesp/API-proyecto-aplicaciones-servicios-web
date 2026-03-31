@@ -16,9 +16,9 @@ using System.Data;                                       // Para DataRow y DataC
 using System.Linq;                                       // Para Cast y ToDictionary
 using System.Text.Json;                                 // Para JsonElement
 using Microsoft.Extensions.Logging;                      // Para ILogger y logging estructurado
-using API_aplicaciones_servicios_web.Servicios.Abstracciones;              // Para IServicioConsultas
+using ApiGenericaCsharp.Servicios.Abstracciones;              // Para IServicioConsultas
 
-namespace API_aplicaciones_servicios_web.Controllers
+namespace ApiGenericaCsharp.Controllers
 {
     /// <summary>
     /// Controlador específico para ejecutar consultas SQL parametrizadas de forma segura.

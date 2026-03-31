@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using API_aplicaciones_servicios_web.Repositorios.Abstracciones;
+using ApiGenericaCsharp.Repositorios.Abstracciones;
 
-namespace API_aplicaciones_servicios_web.Controllers
+namespace ApiGenericaCsharp.Controllers
 {
     [Route("api/estructuras")]
     [ApiController]

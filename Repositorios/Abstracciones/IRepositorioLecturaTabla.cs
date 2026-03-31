@@ -10,7 +10,7 @@
 using System.Collections.Generic;   // Habilita List<> y Dictionary<> para colecciones
 using System.Threading.Tasks;       // Habilita Task y async/await para operaciones asíncronas
 
-namespace API_aplicaciones_servicios_web.Repositorios.Abstracciones
+namespace ApiGenericaCsharp.Repositorios.Abstracciones
 {
     /// <summary>
     /// Contrato para repositorios que realizan operaciones de lectura sobre tablas de base de datos.

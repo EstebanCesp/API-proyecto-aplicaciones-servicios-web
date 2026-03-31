@@ -9,9 +9,9 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using API_aplicaciones_servicios_web.Servicios.Abstracciones;
+using ApiGenericaCsharp.Servicios.Abstracciones;
 
-namespace API_aplicaciones_servicios_web.Servicios.Politicas
+namespace ApiGenericaCsharp.Servicios.Politicas
 {
     /// <summary>
     /// Implementación concreta que lee la lista de tablas prohibidas desde appsettings.json.

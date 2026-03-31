@@ -7,7 +7,7 @@ using System.Collections.Generic;   // Para Dictionary<>
 using System.Threading.Tasks;       // Para async/await
 using System.Data;                  // Para DataTable
 
-namespace API_aplicaciones_servicios_web.Repositorios.Abstracciones
+namespace ApiGenericaCsharp.Repositorios.Abstracciones
 {
     /// <summary>
     /// Contrato genérico para repositorios que ejecutan consultas SQL parametrizadas.

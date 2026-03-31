@@ -4,8 +4,6 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>API_aplicaciones_servicios_web</RootNamespace>
-    <AssemblyName>API_aplicaciones_servicios_web</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

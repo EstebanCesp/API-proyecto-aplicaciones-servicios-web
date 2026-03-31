@@ -13,11 +13,11 @@ using Microsoft.AspNetCore.Mvc;                          // Para ControllerBase,
 using System.Threading.Tasks;                            // Para async/await
 using Microsoft.Extensions.Logging;                      // Para ILogger y logging estructurado
 using Microsoft.Extensions.Configuration;                // Para IConfiguration y acceso a appsettings.json
-using API_aplicaciones_servicios_web.Servicios.Abstracciones;              // Para IServicioCrud
+using ApiGenericaCsharp.Servicios.Abstracciones;              // Para IServicioCrud
 using Microsoft.Data.SqlClient;                     // Para SqlException en manejo de errores específicos
 using System.Text.Json;
 
-namespace API_aplicaciones_servicios_web.Controllers
+namespace ApiGenericaCsharp.Controllers
 {
     /// <summary>
     /// Controlador genérico para operaciones CRUD sobre cualquier tabla de base de datos.

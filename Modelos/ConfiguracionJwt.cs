@@ -14,12 +14,12 @@
 //
 // "Jwt": {
 //   "Key": "ClaveSuperSecreta123456",
-//   "Issuer": "API_aplicaciones_servicios_web",
+//   "Issuer": "ApiGenericaCsharp",
 //   "Audience": "clientes",
 //   "DuracionMinutos": 60
 // }
 
-namespace API_aplicaciones_servicios_web.Modelos  
+namespace ApiGenericaCsharp.Modelos  
 {
     /// <summary>
     /// Representa los valores de configuración JWT.

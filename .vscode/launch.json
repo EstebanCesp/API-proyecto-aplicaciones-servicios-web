@@ -15,7 +15,7 @@
         {
             // "name": Nombre visible en el menu desplegable de
             //         debug (barra superior de VS Code, junto a F5).
-            "name": "Depurar API_aplicaciones_servicios_web",
+            "name": "Depurar ApiGenericaCsharp",
 
             // "type": Tipo de depurador.
             //   "coreclr" = depurador de .NET Core / .NET 5+
@@ -35,7 +35,7 @@
             // "program": Ruta a la DLL compilada.
             //   Despues de "dotnet build", la DLL queda en
             //   bin/Debug/net9.0/
-            "program": "${workspaceFolder}/bin/Debug/net9.0/API_aplicaciones_servicios_web.dll",
+            "program": "${workspaceFolder}/bin/Debug/net9.0/ApiGenericaCsharp.dll",
 
             // "args": Argumentos de linea de comandos (ninguno).
             "args": [],

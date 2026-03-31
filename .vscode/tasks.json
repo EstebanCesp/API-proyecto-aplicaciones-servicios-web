@@ -30,7 +30,7 @@
             //   - FormatForVisualStudio: formato legible para VS Code
             "args": [
                 "build",
-                "${workspaceFolder}/API_aplicaciones_servicios_web.csproj",
+                "${workspaceFolder}/ApiGenericaCsharp.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary;FormatForVisualStudio"
             ],

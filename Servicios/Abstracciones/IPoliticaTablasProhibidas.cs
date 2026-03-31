@@ -7,7 +7,7 @@
 // - OCP: Se puede extender con nuevas implementaciones (base de datos, archivos, API externa)
 // - ISP: Interfaz pequeña y específica con un solo método
 
-namespace API_aplicaciones_servicios_web.Servicios.Abstracciones
+namespace ApiGenericaCsharp.Servicios.Abstracciones
 {
     /// <summary>
     /// Interfaz que define el contrato para validar si una tabla está permitida o prohibida.

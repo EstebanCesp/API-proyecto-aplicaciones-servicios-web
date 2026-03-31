@@ -16,9 +16,9 @@ using System.Data;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using API_aplicaciones_servicios_web.Servicios.Abstracciones;
+using ApiGenericaCsharp.Servicios.Abstracciones;
 
-namespace API_aplicaciones_servicios_web.Controllers
+namespace ApiGenericaCsharp.Controllers
 {
     /// <summary>
     /// Controlador específico para ejecutar procedimientos almacenados de forma segura.

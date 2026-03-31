@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 // Archivo   : RepositorioLecturaMysqlMariaDB.cs
-// Ruta      : API_aplicaciones_servicios_web/Repositorios/RepositorioLecturaMysqlMariaDB.cs
+// Ruta      : ApiGenericaCsharp/Repositorios/RepositorioLecturaMysqlMariaDB.cs
 // Propósito : Implementar IRepositorioLecturaTabla para MySQL/MariaDB,
 //             con soporte de operaciones CRUD y encriptación de contraseñas.
 // Dependencias:
@@ -26,11 +26,11 @@ using System.Threading.Tasks;
 // Opción 2: Conector alternativo de alto rendimiento (paquete MySqlConnector)
 using MySqlConnector;
 
-using API_aplicaciones_servicios_web.Repositorios.Abstracciones;      // Contrato IRepositorioLecturaTabla
-using API_aplicaciones_servicios_web.Servicios.Abstracciones;         // Contrato IProveedorConexion
-using API_aplicaciones_servicios_web.Servicios.Utilidades;            // EncriptacionBCrypt
+using ApiGenericaCsharp.Repositorios.Abstracciones;      // Contrato IRepositorioLecturaTabla
+using ApiGenericaCsharp.Servicios.Abstracciones;         // Contrato IProveedorConexion
+using ApiGenericaCsharp.Servicios.Utilidades;            // EncriptacionBCrypt
 
-namespace API_aplicaciones_servicios_web.Repositorios
+namespace ApiGenericaCsharp.Repositorios
 {
     /// <summary>
     /// Repositorio concreto para MySQL/MariaDB que implementa las operaciones

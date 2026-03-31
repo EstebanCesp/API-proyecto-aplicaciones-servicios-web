@@ -1,6 +1,6 @@
 // --------------------------------------------------------------
 // Archivo: RepositorioConsultasSqlServer.cs 
-// Ruta: API_aplicaciones_servicios_web/Repositorios/RepositorioConsultasSqlServer.cs
+// Ruta: ApiGenericaCsharp/Repositorios/RepositorioConsultasSqlServer.cs
 // Mejora: Manejo inteligente de DateTime con hora 00:00:00 como DATE
 //         EN CONSULTAS Y PROCEDIMIENTOS ALMACENADOS
 // --------------------------------------------------------------
@@ -10,10 +10,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using API_aplicaciones_servicios_web.Repositorios.Abstracciones;
-using API_aplicaciones_servicios_web.Servicios.Abstracciones;
+using ApiGenericaCsharp.Repositorios.Abstracciones;
+using ApiGenericaCsharp.Servicios.Abstracciones;
 
-namespace API_aplicaciones_servicios_web.Repositorios
+namespace ApiGenericaCsharp.Repositorios
 {
     /// <summary>
     /// Implementación de repositorio para ejecutar consultas y procedimientos almacenados en SQL Server.
@@ -392,6 +392,8 @@ public async Task<DataTable> EjecutarProcedimientoAlmacenadoConDictionaryAsync(
 
                 if (meta.MaxLength.HasValue && meta.MaxLength.Value > 0)
                     param.Size = meta.MaxLength.Value;
+                else if (meta.MaxLength.HasValue && meta.MaxLength.Value == -1)
+                    param.Size = -1; // -1 indica NVARCHAR(MAX)
 
                 comando.Parameters.Add(param);
             }

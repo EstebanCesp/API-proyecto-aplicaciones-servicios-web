@@ -12,9 +12,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using API_aplicaciones_servicios_web.Repositorios.Abstracciones;
+using ApiGenericaCsharp.Repositorios.Abstracciones;
 
-namespace API_aplicaciones_servicios_web.Controllers
+namespace ApiGenericaCsharp.Controllers
 {
     /// <summary>
     /// Controlador especializado para operaciones de diagnóstico de conexiones de base de datos.

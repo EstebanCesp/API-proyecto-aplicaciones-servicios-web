@@ -12,7 +12,7 @@ using System.Threading.Tasks;       // Para programación asíncrona con async/a
 using Microsoft.Data.SqlClient;     // Para SqlParameter en las consultas parametrizadas
 using System.Data;                  // Para DataTable
 
-namespace API_aplicaciones_servicios_web.Servicios.Abstracciones
+namespace ApiGenericaCsharp.Servicios.Abstracciones
 {
     /// <summary>
     /// Contrato que define cómo ejecutar consultas SQL parametrizadas de forma segura.
