@@ -80,6 +80,7 @@ CREATE TABLE factura (
     numero SERIAL NOT NULL,
     fecha TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     total NUMERIC NOT NULL DEFAULT 0,
+    estado VARCHAR(10) NOT NULL DEFAULT 'activa',
     fkidcliente INTEGER NOT NULL,
     fkidvendedor INTEGER NOT NULL,
     CONSTRAINT pk_factura PRIMARY KEY (numero),
@@ -157,20 +158,20 @@ SELECT setval('rol_id_seq', (SELECT MAX(id) FROM rol));
 -- Rutas
 INSERT INTO ruta (ruta, descripcion) VALUES
 ('/home', 'Página principal - Dashboard'),
-('/usuarios', 'Gestión de usuarios'),
-('/facturas', 'Gestión de facturas'),
-('/clientes', 'Gestión de clientes'),
-('/vendedores', 'Gestión de vendedores'),
-('/personas', 'Gestión de personas'),
-('/empresas', 'Gestión de empresas'),
-('/productos', 'Gestión de productos'),
-('/roles', 'Gestión de roles'),
-('/permisos', 'Gestión de permisos (asignación rol-ruta)'),
-('/permisos/crear', 'Crear permiso (POST)'),
-('/permisos/eliminar', 'Eliminar permiso (POST)'),
-('/rutas', 'Gestión de rutas del sistema'),
-('/rutas/crear', 'Crear ruta (POST)'),
-('/rutas/eliminar', 'Eliminar ruta (POST)');
+('/usuario', 'Gestión de usuarios'),
+('/factura', 'Gestión de facturas'),
+('/cliente', 'Gestión de clientes'),
+('/vendedor', 'Gestión de vendedores'),
+('/persona', 'Gestión de personas'),
+('/empresa', 'Gestión de empresas'),
+('/producto', 'Gestión de productos'),
+('/rol', 'Gestión de roles'),
+('/permiso', 'Gestión de permisos (asignación rol-ruta)'),
+('/permiso/crear', 'Crear permiso (POST)'),
+('/permiso/eliminar', 'Eliminar permiso (POST)'),
+('/ruta', 'Gestión de rutas del sistema'),
+('/ruta/crear', 'Crear ruta (POST)'),
+('/ruta/eliminar', 'Eliminar ruta (POST)');
 
 -- Usuarios
 INSERT INTO usuario (email, contrasena) VALUES
@@ -179,7 +180,9 @@ INSERT INTO usuario (email, contrasena) VALUES
 ('jefe@correo.com', 'jefe123'),
 ('cliente1@correo.com', 'cli123'),
 ('test_encript@correo.com', '$2a$11$Ci0J2yBltDgQHfjadgkl0OtbcF5pUf97vTq/4Xr0KEU/86l8ybjBe'),
-('nuevo@correo.com', '$2a$11$cmtGBxllwc7MCzpnKVSWuumiOgCaG6PaKWcN1z9N0bjjnkobbFDzO');
+('nuevo@correo.com', '$2a$11$cmtGBxllwc7MCzpnKVSWuumiOgCaG6PaKWcN1z9N0bjjnkobbFDzO'),
+('carlos.castro@usbmed.edu.co', '$2a$10$YYl6bHCflCnk8suUrms3ie.rnpLvfD9nHJtehZwhcSkINelGwt6iC'),
+('carloscastro5033@correo.itm.edu.co', '$2a$10$YYl6bHCflCnk8suUrms3ie.rnpLvfD9nHJtehZwhcSkINelGwt6iC');
 
 -- Clientes
 INSERT INTO cliente (id, credito, fkcodpersona, fkcodempresa) VALUES
@@ -239,7 +242,17 @@ INSERT INTO rol_usuario (fkemail, fkidrol) VALUES
 ('test_encript@correo.com', 1),
 ('nuevo@correo.com', 1),
 ('nuevo@correo.com', 2),
-('nuevo@correo.com', 3);
+('nuevo@correo.com', 3),
+('carlos.castro@usbmed.edu.co', 1),
+('carlos.castro@usbmed.edu.co', 2),
+('carlos.castro@usbmed.edu.co', 3),
+('carlos.castro@usbmed.edu.co', 4),
+('carlos.castro@usbmed.edu.co', 5),
+('carloscastro5033@correo.itm.edu.co', 1),
+('carloscastro5033@correo.itm.edu.co', 2),
+('carloscastro5033@correo.itm.edu.co', 3),
+('carloscastro5033@correo.itm.edu.co', 4),
+('carloscastro5033@correo.itm.edu.co', 5);
 
 -- Rutas por rol
 -- Rutas por rol (fkidruta, fkidrol)
@@ -366,7 +379,7 @@ BEGIN
     SELECT json_build_object(
         'factura', (
             SELECT row_to_json(fac) FROM (
-                SELECT f.numero, f.fecha, f.total, f.fkidcliente, f.fkidvendedor
+                SELECT f.numero, f.fecha, f.total, f.estado, f.fkidcliente, f.fkidvendedor
                 FROM factura f WHERE f.numero = v_numero
             ) fac
         ),
@@ -408,6 +421,7 @@ BEGIN
             'numero', f.numero,
             'fecha', f.fecha,
             'total', f.total,
+            'estado', f.estado,
             'fkidcliente', f.fkidcliente,
             'nombre_cliente', pc.nombre,
             'fkidvendedor', f.fkidvendedor,
@@ -455,6 +469,7 @@ BEGIN
             'numero', f.numero,
             'fecha', f.fecha,
             'total', f.total,
+            'estado', f.estado,
             'fkidcliente', f.fkidcliente,
             'nombre_cliente', pc.nombre,
             'fkidvendedor', f.fkidvendedor,
@@ -542,7 +557,7 @@ BEGIN
     SELECT json_build_object(
         'factura', (
             SELECT row_to_json(fac) FROM (
-                SELECT f.numero, f.fecha, f.total, f.fkidcliente, f.fkidvendedor
+                SELECT f.numero, f.fecha, f.total, f.estado, f.fkidcliente, f.fkidvendedor
                 FROM factura f WHERE f.numero = p_numero
             ) fac
         ),
@@ -598,6 +613,65 @@ BEGIN
         'numero_eliminado', p_numero,
         'total_eliminado', v_total,
         'productos_eliminados', v_cantidad_productos
+    );
+END;
+$$;
+
+-- ------------------------------------------------------------
+-- 6. SP ANULAR FACTURA (borrado lógico)
+-- Cambia el estado de la factura a 'anulada' y restaura el stock
+-- de todos los productos. NO elimina la factura de la BD.
+-- El borrado físico (DELETE) solo lo puede hacer el admin via
+-- sp_borrar_factura_y_productosporfactura.
+-- Ejemplo via API:
+--   POST /api/procedimientos/ejecutarsp
+--   { "nombreSP": "sp_anular_factura",
+--     "p_numero": 1, "p_resultado": null }
+-- ------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE sp_anular_factura(
+    IN p_numero INTEGER,
+    INOUT p_resultado JSON DEFAULT NULL
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_total NUMERIC;
+    v_cantidad_productos BIGINT;
+    v_estado VARCHAR(10);
+BEGIN
+    -- Validar que la factura existe
+    IF NOT EXISTS (SELECT 1 FROM factura WHERE factura.numero = p_numero) THEN
+        RAISE EXCEPTION 'Factura % no existe', p_numero;
+    END IF;
+
+    -- Validar que no esté ya anulada
+    SELECT estado INTO v_estado FROM factura WHERE factura.numero = p_numero;
+    IF v_estado = 'anulada' THEN
+        RAISE EXCEPTION 'Factura % ya está anulada', p_numero;
+    END IF;
+
+    -- Restaurar stock de todos los productos de la factura
+    UPDATE producto p
+    SET stock = p.stock + pf.cantidad
+    FROM productosporfactura pf
+    WHERE p.codigo = pf.fkcodproducto AND pf.fknumfactura = p_numero;
+
+    -- Guardar info para la respuesta
+    SELECT COUNT(*) INTO v_cantidad_productos
+    FROM productosporfactura WHERE fknumfactura = p_numero;
+
+    SELECT f.total INTO v_total FROM factura f WHERE f.numero = p_numero;
+
+    -- Cambiar estado a 'anulada'
+    UPDATE factura SET estado = 'anulada' WHERE factura.numero = p_numero;
+
+    -- Retornar resultado como JSON
+    p_resultado := json_build_object(
+        'mensaje', 'Factura anulada exitosamente',
+        'numero_anulado', p_numero,
+        'total_anulado', v_total,
+        'productos_afectados', v_cantidad_productos,
+        'estado', 'anulada'
     );
 END;
 $$;

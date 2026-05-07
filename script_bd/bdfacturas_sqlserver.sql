@@ -23,6 +23,7 @@ IF OBJECT_ID('sp_consultar_factura_y_productosporfactura', 'P') IS NOT NULL DROP
 IF OBJECT_ID('sp_listar_facturas_y_productosporfactura', 'P') IS NOT NULL DROP PROCEDURE sp_listar_facturas_y_productosporfactura;
 IF OBJECT_ID('sp_actualizar_factura_y_productosporfactura', 'P') IS NOT NULL DROP PROCEDURE sp_actualizar_factura_y_productosporfactura;
 IF OBJECT_ID('sp_borrar_factura_y_productosporfactura', 'P') IS NOT NULL DROP PROCEDURE sp_borrar_factura_y_productosporfactura;
+IF OBJECT_ID('sp_anular_factura', 'P') IS NOT NULL DROP PROCEDURE sp_anular_factura;
 IF OBJECT_ID('crear_usuario_con_roles', 'P') IS NOT NULL DROP PROCEDURE crear_usuario_con_roles;
 IF OBJECT_ID('actualizar_usuario_con_roles', 'P') IS NOT NULL DROP PROCEDURE actualizar_usuario_con_roles;
 IF OBJECT_ID('eliminar_usuario_con_roles', 'P') IS NOT NULL DROP PROCEDURE eliminar_usuario_con_roles;
@@ -124,6 +125,7 @@ CREATE TABLE factura (
     numero INT IDENTITY(1,1) NOT NULL,
     fecha DATETIME2 NOT NULL DEFAULT GETDATE(),
     total DECIMAL(18,2) NOT NULL DEFAULT 0,
+    estado NVARCHAR(10) NOT NULL DEFAULT N'activa',
     fkidcliente INT NOT NULL,
     fkidvendedor INT NOT NULL,
     CONSTRAINT pk_factura PRIMARY KEY (numero),
@@ -392,7 +394,7 @@ BEGIN
         DECLARE @v_productos_json NVARCHAR(MAX);
 
         SELECT @v_factura_json = (
-            SELECT f.numero, f.fecha, f.total, f.fkidcliente, f.fkidvendedor
+            SELECT f.numero, f.fecha, f.total, f.estado, f.fkidcliente, f.fkidvendedor
             FROM factura f WHERE f.numero = @v_numero
             FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
         );
@@ -454,7 +456,7 @@ BEGIN
     DECLARE @v_productos_json NVARCHAR(MAX);
 
     SELECT @v_factura_json = (
-        SELECT f.numero, f.fecha, f.total, f.fkidcliente,
+        SELECT f.numero, f.fecha, f.total, f.estado, f.fkidcliente,
                pc.nombre AS nombre_cliente,
                f.fkidvendedor,
                pv.nombre AS nombre_vendedor
@@ -541,6 +543,7 @@ BEGIN
             N'"numero":' + CAST(@v_numero AS NVARCHAR) + N',' +
             N'"fecha":"' + CONVERT(NVARCHAR(30), (SELECT fecha FROM factura WHERE numero = @v_numero), 126) + N'",' +
             N'"total":' + CAST((SELECT total FROM factura WHERE numero = @v_numero) AS NVARCHAR) + N',' +
+            N'"estado":"' + (SELECT estado FROM factura WHERE numero = @v_numero) + N'",' +
             N'"fkidcliente":' + CAST((SELECT fkidcliente FROM factura WHERE numero = @v_numero) AS NVARCHAR) + N',' +
             N'"nombre_cliente":"' + (SELECT pc.nombre FROM factura f JOIN cliente c ON c.id = f.fkidcliente JOIN persona pc ON pc.codigo = c.fkcodpersona WHERE f.numero = @v_numero) + N'",' +
             N'"fkidvendedor":' + CAST((SELECT fkidvendedor FROM factura WHERE numero = @v_numero) AS NVARCHAR) + N',' +
@@ -656,7 +659,7 @@ BEGIN
         DECLARE @v_productos_json NVARCHAR(MAX);
 
         SELECT @v_factura_json = (
-            SELECT f.numero, f.fecha, f.total, f.fkidcliente, f.fkidvendedor
+            SELECT f.numero, f.fecha, f.total, f.estado, f.fkidcliente, f.fkidvendedor
             FROM factura f WHERE f.numero = @p_numero
             FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
         );
@@ -737,6 +740,79 @@ BEGIN
             N'"numero_eliminado":' + CAST(@p_numero AS NVARCHAR) + N',' +
             N'"total_eliminado":' + CAST(@v_total AS NVARCHAR) + N',' +
             N'"productos_eliminados":' + CAST(@v_cantidad_productos AS NVARCHAR) + N'}';
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END;
+GO
+
+-- ------------------------------------------------------------
+-- 6. SP ANULAR FACTURA (borrado lógico)
+-- Cambia el estado de la factura a 'anulada' y restaura el stock
+-- de todos los productos. NO elimina la factura de la BD.
+-- El borrado físico (DELETE) solo lo puede hacer el admin via
+-- sp_borrar_factura_y_productosporfactura.
+-- Ejemplo via API:
+--   POST /api/procedimientos/ejecutarsp
+--   { "nombreSP": "sp_anular_factura",
+--     "p_numero": 1, "p_resultado": null }
+-- ------------------------------------------------------------
+CREATE PROCEDURE sp_anular_factura
+    @p_numero INT,
+    @p_resultado NVARCHAR(MAX) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @v_total DECIMAL(18,2);
+    DECLARE @v_cantidad_productos INT;
+    DECLARE @v_estado NVARCHAR(10);
+    DECLARE @v_msg NVARCHAR(500);
+
+    -- Validar que la factura existe
+    IF NOT EXISTS (SELECT 1 FROM factura WHERE numero = @p_numero)
+    BEGIN
+        SET @v_msg = CONCAT(N'Factura ', @p_numero, N' no existe');
+        THROW 50010, @v_msg, 1;
+    END
+
+    -- Validar que no esté ya anulada
+    SELECT @v_estado = estado FROM factura WHERE numero = @p_numero;
+    IF @v_estado = N'anulada'
+    BEGIN
+        SET @v_msg = CONCAT(N'Factura ', @p_numero, N' ya está anulada');
+        THROW 50010, @v_msg, 1;
+    END
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Restaurar stock de todos los productos de la factura
+        UPDATE p
+        SET p.stock = p.stock + pf.cantidad
+        FROM producto p
+        JOIN productosporfactura pf ON p.codigo = pf.fkcodproducto
+        WHERE pf.fknumfactura = @p_numero;
+
+        -- Guardar info para la respuesta
+        SELECT @v_total = total FROM factura WHERE numero = @p_numero;
+        SELECT @v_cantidad_productos = COUNT(*) FROM productosporfactura WHERE fknumfactura = @p_numero;
+
+        -- Cambiar estado a 'anulada'
+        UPDATE factura SET estado = N'anulada' WHERE numero = @p_numero;
+
+        -- Retornar resultado como JSON
+        SET @p_resultado = N'{"mensaje":"Factura anulada exitosamente",' +
+            N'"numero_anulado":' + CAST(@p_numero AS NVARCHAR) + N',' +
+            N'"total_anulado":' + CAST(@v_total AS NVARCHAR) + N',' +
+            N'"productos_afectados":' + CAST(@v_cantidad_productos AS NVARCHAR) + N',' +
+            N'"estado":"anulada"}';
 
         COMMIT TRANSACTION;
     END TRY
@@ -1283,20 +1359,20 @@ SET IDENTITY_INSERT rol OFF;
 -- Rutas
 INSERT INTO ruta (ruta, descripcion) VALUES
 (N'/home', N'Página principal - Dashboard'),
-(N'/usuarios', N'Gestión de usuarios'),
-(N'/facturas', N'Gestión de facturas'),
-(N'/clientes', N'Gestión de clientes'),
-(N'/vendedores', N'Gestión de vendedores'),
-(N'/personas', N'Gestión de personas'),
-(N'/empresas', N'Gestión de empresas'),
-(N'/productos', N'Gestión de productos'),
-(N'/roles', N'Gestión de roles'),
-(N'/permisos', N'Gestión de permisos (asignación rol-ruta)'),
-(N'/permisos/crear', N'Crear permiso (POST)'),
-(N'/permisos/eliminar', N'Eliminar permiso (POST)'),
-(N'/rutas', N'Gestión de rutas del sistema'),
-(N'/rutas/crear', N'Crear ruta (POST)'),
-(N'/rutas/eliminar', N'Eliminar ruta (POST)');
+(N'/usuario', N'Gestión de usuarios'),
+(N'/factura', N'Gestión de facturas'),
+(N'/cliente', N'Gestión de clientes'),
+(N'/vendedor', N'Gestión de vendedores'),
+(N'/persona', N'Gestión de personas'),
+(N'/empresa', N'Gestión de empresas'),
+(N'/producto', N'Gestión de productos'),
+(N'/rol', N'Gestión de roles'),
+(N'/permiso', N'Gestión de permisos (asignación rol-ruta)'),
+(N'/permiso/crear', N'Crear permiso (POST)'),
+(N'/permiso/eliminar', N'Eliminar permiso (POST)'),
+(N'/ruta', N'Gestión de rutas del sistema'),
+(N'/ruta/crear', N'Crear ruta (POST)'),
+(N'/ruta/eliminar', N'Eliminar ruta (POST)');
 
 -- Usuarios
 INSERT INTO usuario (email, contrasena) VALUES
@@ -1305,7 +1381,9 @@ INSERT INTO usuario (email, contrasena) VALUES
 (N'jefe@correo.com', N'jefe123'),
 (N'cliente1@correo.com', N'cli123'),
 (N'test_encript@correo.com', N'$2a$11$Ci0J2yBltDgQHfjadgkl0OtbcF5pUf97vTq/4Xr0KEU/86l8ybjBe'),
-(N'nuevo@correo.com', N'$2a$11$cmtGBxllwc7MCzpnKVSWuumiOgCaG6PaKWcN1z9N0bjjnkobbFDzO');
+(N'nuevo@correo.com', N'$2a$11$cmtGBxllwc7MCzpnKVSWuumiOgCaG6PaKWcN1z9N0bjjnkobbFDzO'),
+(N'carlos.castro@usbmed.edu.co', N'$2a$10$YYl6bHCflCnk8suUrms3ie.rnpLvfD9nHJtehZwhcSkINelGwt6iC'),
+(N'carloscastro5033@correo.itm.edu.co', N'$2a$10$YYl6bHCflCnk8suUrms3ie.rnpLvfD9nHJtehZwhcSkINelGwt6iC');
 
 -- Clientes (con IDENTITY_INSERT para IDs explícitos)
 SET IDENTITY_INSERT cliente ON;
@@ -1376,7 +1454,17 @@ INSERT INTO rol_usuario (fkemail, fkidrol) VALUES
 (N'test_encript@correo.com', 1),
 (N'nuevo@correo.com', 1),
 (N'nuevo@correo.com', 2),
-(N'nuevo@correo.com', 3);
+(N'nuevo@correo.com', 3),
+(N'carlos.castro@usbmed.edu.co', 1),
+(N'carlos.castro@usbmed.edu.co', 2),
+(N'carlos.castro@usbmed.edu.co', 3),
+(N'carlos.castro@usbmed.edu.co', 4),
+(N'carlos.castro@usbmed.edu.co', 5),
+(N'carloscastro5033@correo.itm.edu.co', 1),
+(N'carloscastro5033@correo.itm.edu.co', 2),
+(N'carloscastro5033@correo.itm.edu.co', 3),
+(N'carloscastro5033@correo.itm.edu.co', 4),
+(N'carloscastro5033@correo.itm.edu.co', 5);
 
 -- Rutas por rol
 -- Rutas por rol (fkidruta, fkidrol)
